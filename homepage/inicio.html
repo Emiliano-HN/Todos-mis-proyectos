@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dynatrix Search - Hacker Edition</title>
+  <link href='imagenes/logo.png' rel='shortcut icon' type='image/x-icon' />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-green: #00ff41;
+      --matrix-green: #00ff00;
+      --dark-bg: #0a0a0a;
+      --card-bg: #1a1a1a;
+      --border-color: #333;
+      --text-primary: #fff;
+      --text-secondary: #aaa;
+      --neon-glow: 0 0 10px var(--primary-green);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, #0f0f0f 0%, #000 100%);
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Matrix Rain Effect */
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    /* Header */
+    .header {
+      margin-top: 40px;
+      text-align: center;
+      position: relative;
+    }
+
+    .main-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 3.5em;
+      background: linear-gradient(45deg, var(--primary-green), #00ccff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: var(--neon-glow);
+      margin-bottom: 10px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    .subtitle {
+      font-size: 1.1em;
+      color: var(--text-secondary);
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    @keyframes glow {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.2); }
+    }
+
+    /* Search Form */
+    .search-container {
+      margin: 40px 0;
+      width: 90%;
+      max-width: 700px;
+      position: relative;
+    }
+
+    .search-form {
+      display: flex;
+      background: rgba(26, 26, 26, 0.8);
+      border: 2px solid var(--border-color);
+      border-radius: 50px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .search-form:focus-within {
+      border-color: var(--primary-green);
+      box-shadow: var(--neon-glow);
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 18px 25px;
+      font-size: 1.1em;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .search-btn {
+      padding: 18px 30px;
+      font-size: 1.1em;
+      border: none;
+      background: linear-gradient(45deg, var(--primary-green), #00ccff);
+      color: #000;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px var(--primary-green);
+    }
+
+    .search-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .search-btn:hover::before {
+      left: 100%;
+    }
+
+    /* Search Options */
+    .search-options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-option {
+      padding: 8px 15px;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid var(--primary-green);
+      border-radius: 20px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .search-option:hover {
+      background: var(--primary-green);
+      color: #000;
+      transform: translateY(-2px);
+    }
+
+    /* Cards Grid */
+    .cards-section {
+      padding: 40px 20px;
+      width: 100%;
+      max-width: 1400px;
+    }
+
+    .section-title {
+      font-size: 2em;
+      margin-bottom: 30px;
+      text-align: center;
+      color: var(--primary-green);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, var(--card-bg), #252525);
+      border: 1px solid var(--border-color);
+      border-radius: 15px;
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      position: relative;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-green), #00ccff);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--primary-green);
+      box-shadow: 0 15px 30px rgba(0, 255, 65, 0.2);
+    }
+
+    .card-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      background: linear-gradient(45deg, var(--primary-green), #00ccff);
+      color: #000;
+    }
+
+    .card-info h3 {
+      font-size: 1.3em;
+      margin-bottom: 5px;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .card-info p {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+    }
+
+    .card-content {
+      padding: 0 20px 20px;
+    }
+
+    .card-description {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .card-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      background: rgba(0, 255, 65, 0.2);
+      border: 1px solid var(--primary-green);
+      border-radius: 15px;
+      font-size: 0.8em;
+      color: var(--primary-green);
+    }
+
+    /* Terminal Section */
+    .terminal {
+      width: 90%;
+      max-width: 800px;
+      background: #0a0a0a;
+      border: 1px solid var(--primary-green);
+      border-radius: 10px;
+      margin: 40px 0;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    }
+
+    .terminal-header {
+      background: var(--primary-green);
+      color: #000;
+      padding: 10px 15px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 500;
+    }
+
+    .terminal-body {
+      padding: 20px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9em;
+      line-height: 1.6;
+    }
+
+    .terminal-line {
+      margin-bottom: 5px;
+    }
+
+    .prompt {
+      color: var(--primary-green);
+    }
+
+    .command {
+      color: #00ccff;
+    }
+
+    .output {
+      color: var(--text-secondary);
+    }
+
+    /* Quick Links */
+    .quick-links {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 30px 0;
+    }
+
+    .quick-link {
+      padding: 10px 20px;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid var(--primary-green);
+      border-radius: 25px;
+      text-decoration: none;
+      color: var(--primary-green);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+    }
+
+    .quick-link:hover {
+      background: var(--primary-green);
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: auto;
+      padding: 30px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .footer-content {
+      font-family: 'Fira Code', monospace;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      color: var(--primary-green);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-link:hover {
+      color: #00ccff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-title {
+        font-size: 2.5em;
+      }
+      
+      .cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-options {
+        justify-content: center;
+      }
+      
+      .quick-links {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
+    .card:nth-child(4) { animation-delay: 0.4s; }
+    .card:nth-child(5) { animation-delay: 0.5s; }
+    .card:nth-child(6) { animation-delay: 0.6s; }
+  </style>
+</head>
+<body>
+  <div class="matrix-bg">
+    <canvas id="matrix"></canvas>
+  </div>
+
+  <div class="header">
+    <h1 class="main-title">HACKEA EL MUNDO</h1>
+    <p class="subtitle">HACKER SEARCH</p>
+  </div>
+
+  <div class="search-container">
+    <form class="search-form" action="https://www.google.com/search" method="get" target="_blank">
+      <input type="text" name="q" class="search-input" placeholder="root@hackea_el_mundo:~$ seleciona_un_buscador">
+      <button type="submit" class="search-btn">EXECUTE</button>
+    </form>
+    
+    <div class="search-options">
+      <div class="search-option" onclick="setSearchEngine('google')">Google</div>
+      <div class="search-option" onclick="setSearchEngine('duckduckgo')">DuckDuckGo</div>
+      <div class="search-option" onclick="setSearchEngine('shodan')">Shodan</div>
+      <div class="search-option" onclick="setSearchEngine('github')">GitHub</div>
+    </div>
+  </div>
+
+  <div class="quick-links">
+    <a href="https://www.kali.org/tools/" class="quick-link" target="_blank">Kali Tools</a>
+    <a href="https://gtfobins.github.io/" class="quick-link" target="_blank">GTFOBins</a>
+    <a href="https://pentestlab.blog/" class="quick-link" target="_blank">PentestLab</a>
+    <a href="https://www.exploit-db.com/" class="quick-link" target="_blank">Exploit-DB</a>
+    <a href="https://cve.mitre.org/" class="quick-link" target="_blank">CVE Database</a>
+  </div>
+
+  <div class="cards-section">
+    <h2 class="section-title">> KALI LINUX TOOLS</h2>
+    
+    <div class="cards">
+      <a class="card" href="https://www.kali.org/tools/nmap/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <div class="card-info">
+            <h3>Nmap</h3>
+            <p>Network Discovery</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Network mapper para descubrimiento de hosts y servicios en redes. Escaneo de puertos y detección de OS.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Scanning</span>
+            <span class="tag">Network</span>
+            <span class="tag">Discovery</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.kali.org/tools/sqlmap/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">💉</div>
+          <div class="card-info">
+            <h3>SQLMap</h3>
+            <p>SQL Injection</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Herramienta automática para detectar y explotar vulnerabilidades de inyección SQL en bases de datos.
+          </div>
+          <div class="card-tags">
+            <span class="tag">SQL Injection</span>
+            <span class="tag">Database</span>
+            <span class="tag">Exploitation</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.kali.org/tools/aircrack-ng/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">📶</div>
+          <div class="card-info">
+            <h3>Aircrack-ng</h3>
+            <p>WiFi Security</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Suite completa para auditoría de redes wireless. Captura, análisis y cracking de claves WEP/WPA.
+          </div>
+          <div class="card-tags">
+            <span class="tag">WiFi</span>
+            <span class="tag">Cracking</span>
+            <span class="tag">Wireless</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.kali.org/tools/john/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🔐</div>
+          <div class="card-info">
+            <h3>John the Ripper</h3>
+            <p>Password Cracking</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Crackeador de contraseñas rápido y potente. Soporta múltiples formatos de hash y algoritmos de cifrado.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Password</span>
+            <span class="tag">Hash</span>
+            <span class="tag">Brute Force</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.kali.org/tools/nikto/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🌐</div>
+          <div class="card-info">
+            <h3>Nikto</h3>
+            <p>Web Vulnerability Scanner</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Scanner de vulnerabilidades web que detecta archivos peligrosos, configuraciones inseguras y vulnerabilidades conocidas.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Web Scanner</span>
+            <span class="tag">Vulnerabilities</span>
+            <span class="tag">HTTP</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.kali.org/tools/gobuster/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🔎</div>
+          <div class="card-info">
+            <h3>Gobuster</h3>
+            <p>Directory Brute Forcer</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Herramienta de fuerza bruta para descubrir directorios, archivos ocultos y subdominios en aplicaciones web.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Directory</span>
+            <span class="tag">Brute Force</span>
+            <span class="tag">Enumeration</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">> AI SECURITY TOOLS</h2>
+    
+    <div class="cards">
+      <a class="card" href="https://chat.openai.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🤖</div>
+          <div class="card-info">
+            <h3>ChatGPT</h3>
+            <p>AI Assistant</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Asistente de IA para análisis de código, explicación de vulnerabilidades y generación de scripts de seguridad.
+          </div>
+          <div class="card-tags">
+            <span class="tag">AI</span>
+            <span class="tag">Code Analysis</span>
+            <span class="tag">Scripting</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://claude.ai" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🧠</div>
+          <div class="card-info">
+            <h3>Claude AI</h3>
+            <p>Security Analysis</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            IA especializada en análisis de seguridad, revisión de código y explicación de conceptos técnicos avanzados.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Security</span>
+            <span class="tag">Analysis</span>
+            <span class="tag">Research</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/microsoft/SecurityCopilot" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🛡️</div>
+          <div class="card-info">
+            <h3>Security Copilot</h3>
+            <p>AI-Powered SOC</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Copiloto de seguridad con IA para análisis de amenazas, respuesta a incidentes y hunting automático.
+          </div>
+          <div class="card-tags">
+            <span class="tag">SOC</span>
+            <span class="tag">Threat Hunting</span>
+            <span class="tag">Incident Response</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.darktrace.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">👁️</div>
+          <div class="card-info">
+            <h3>Darktrace</h3>
+            <p>AI Cyber Defense</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Plataforma de ciberdefensa con IA que detecta y responde automáticamente a amenazas avanzadas.
+          </div>
+          <div class="card-tags">
+            <span class="tag">AI Defense</span>
+            <span class="tag">Threat Detection</span>
+            <span class="tag">Autonomous Response</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/topics/ai-security" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">⚡</div>
+          <div class="card-info">
+            <h3>AI Security Projects</h3>
+            <p>Open Source AI Tools</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Repositorios de herramientas de seguridad potenciadas por IA, machine learning para detección de malware y más.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Open Source</span>
+            <span class="tag">Machine Learning</span>
+            <span class="tag">Detection</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.vectra.ai" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🎯</div>
+          <div class="card-info">
+            <h3>Vectra AI</h3>
+            <p>Network Detection</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Plataforma de detección y respuesta de red (NDR) que usa IA para identificar atacantes en tiempo real.
+          </div>
+          <div class="card-tags">
+            <span class="tag">NDR</span>
+            <span class="tag">Network Security</span>
+            <span class="tag">Real-time</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">> HACKER RESOURCES</h2>
+    
+    <div class="cards">
+      <a class="card" href="https://github.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">💻</div>
+          <div class="card-info">
+            <h3>GitHub</h3>
+            <p>Code Repository</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Repositorio de código fuente, herramientas de hacking, exploits y proyectos de ciberseguridad.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Code</span>
+            <span class="tag">Tools</span>
+            <span class="tag">Exploits</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.shodan.io" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🌐</div>
+          <div class="card-info">
+            <h3>Shodan</h3>
+            <p>Internet Scanner</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Motor de búsqueda para dispositivos conectados a Internet. Encuentra cámaras, servidores, IoT devices.
+          </div>
+          <div class="card-tags">
+            <span class="tag">IoT</span>
+            <span class="tag">Recon</span>
+            <span class="tag">OSINT</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.metasploit.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🛡️</div>
+          <div class="card-info">
+            <h3>Metasploit</h3>
+            <p>Penetration Testing</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Framework de penetration testing con miles de exploits, payloads y herramientas de post-explotación.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Pentesting</span>
+            <span class="tag">Exploits</span>
+            <span class="tag">Framework</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.virustotal.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <div class="card-info">
+            <h3>VirusTotal</h3>
+            <p>Malware Analysis</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Servicio de análisis de malware y URLs sospechosas usando múltiples motores antivirus.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Malware</span>
+            <span class="tag">Analysis</span>
+            <span class="tag">Security</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.wireshark.org" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">📡</div>
+          <div class="card-info">
+            <h3>Wireshark</h3>
+            <p>Network Analyzer</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Analizador de protocolos de red más popular del mundo. Captura y analiza tráfico de red en tiempo real.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Network</span>
+            <span class="tag">Analysis</span>
+            <span class="tag">Packets</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://portswigger.net/burp" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🕷️</div>
+          <div class="card-info">
+            <h3>Burp Suite</h3>
+            <p>Web Security Testing</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Suite de herramientas para testing de seguridad en aplicaciones web. Proxy, scanner, intruder.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Web Security</span>
+            <span class="tag">Proxy</span>
+            <span class="tag">Scanner</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">> LEARNING PLATFORMS</h2>
+    
+    <div class="cards">
+      <a class="card" href="https://tryhackme.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">🎯</div>
+          <div class="card-info">
+            <h3>TryHackMe</h3>
+            <p>Cyber Security Training</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Plataforma gamificada para aprender ciberseguridad con labs prácticos y challenges.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Learning</span>
+            <span class="tag">CTF</span>
+            <span class="tag">Labs</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://www.hackthebox.com" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">📦</div>
+          <div class="card-info">
+            <h3>Hack The Box</h3>
+            <p>Penetration Testing Labs</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Máquinas virtuales vulnerables para practicar penetration testing y ethical hacking.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Labs</span>
+            <span class="tag">Challenges</span>
+            <span class="tag">Practice</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="https://overthewire.org/wargames/" target="_blank">
+        <div class="card-header">
+          <div class="card-icon">⚔️</div>
+          <div class="card-info">
+            <h3>OverTheWire</h3>
+            <p>Wargames</p>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="card-description">
+            Juegos de guerra online para aprender conceptos de seguridad informática de forma práctica.
+          </div>
+          <div class="card-tags">
+            <span class="tag">Wargames</span>
+            <span class="tag">Linux</span>
+            <span class="tag">Security</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      Instala el programa, por la terminal
+    </div>
+    <div class="terminal-body">
+      <div class="terminal-line">
+        <span class="prompt">dynatrix@system:~$</span> <span class="command">whoami</span>
+      </div>
+      <div class="terminal-line">
+        <span class="output">ethical_hacker</span>
+      </div>
+      <div class="terminal-line">
+        <span class="prompt">dynatrix@system:~$</span> <span class="command">cat /etc/motd</span>
+      </div>
+      <div class="terminal-line">
+        <span class="output">Welcome to Dynatrix Hacker Search Engine</span>
+      </div>
+      <div class="terminal-line">
+        <span class="output">Remember: Use your skills ethically and responsibly</span>
+      </div>
+      <div class="terminal-line">
+        <span class="prompt">dynatrix@system:~$</span> <span class="command">ls -la /tools/</span>
+      </div>
+      <div class="terminal-line">
+        <span class="output">nmap burpsuite metasploit wireshark sqlmap nikto</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      Creado por Emiliano Hernández · Dynatrix Systems © 2025
+    </div>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Términos de Uso</a>
+      <a href="#" class="footer-link">Privacidad</a>
+      <a href="mailto:navarretehernan383@gmail.com" class="footer-link">Contacto</a>
+      <a href="https://github.com/Emiliano-HN" class="footer-link">GitHub</a>
+    </div>
+  </div>
+
+  <script>
+    // Matrix Rain Effect
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+    const matrixArray = matrix.split("");
+
+    const font_size = 10;
+    const columns = canvas.width / font_size;
+
+    const drops = [];
+    for(let x = 0; x < columns; x++) {
+      drops[x] = 1;
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#00ff41';
+      ctx.font = font_size + 'px Fira Code';
+
+      for(let i = 0; i < drops.length; i++) {
+        const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+        ctx.fillText(text, i * font_size, drops[i] * font_size);
+
+        if(drops[i] * font_size > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(draw, 35);
+
+    // Search Engine Switching
+    function setSearchEngine(engine) {
+      const form = document.querySelector('.search-form');
+      const input = document.querySelector('.search-input');
+      
+      switch(engine) {
+        case 'google':
+          form.action = 'https://www.google.com/search';
+          input.name = 'q';
+          input.placeholder = 'root@hackea_el_mundo:~$ search_query';
+          break;
+        case 'duckduckgo':
+          form.action = 'https://duckduckgo.com/';
+          input.name = 'q';
+          input.placeholder = 'root@hackea_el_mundo:~$ private_search';
+          break;
+        case 'shodan':
+          form.action = 'https://www.shodan.io/search';
+          input.name = 'query';
+          input.placeholder = 'root@hackea_el_mundo:~$ device_search';
+          break;
+        case 'github':
+          form.action = 'https://github.com/search';
+          input.name = 'q';
+          input.placeholder = 'root@hackea_el_mundo:~$ code_search';
+          break;
+      }
+      
+      // Update active option
+      document.querySelectorAll('.search-option').forEach(opt => {
+        opt.style.background = 'rgba(0, 255, 65, 0.1)';
+        opt.style.color = '#fff';
+      });
+      
+      event.target.style.background = '#00ff41';
+      event.target.style.color = '#000';
+    }
+
+    // Resize canvas on window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Add some interactive effects
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-8px) scale(1.02)';
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+
+    // Terminal typing effect
+    const terminalBody = document.querySelector('.terminal-body');
+    let isTyping = false;
+
+    terminalBody.addEventListener('click', () => {
+      if (!isTyping) {
+        typeCommand();
+      }
+    });
+
+    function typeCommand() {
+      isTyping = true;
+      const newLine = document.createElement('div');
+      newLine.className = 'terminal-line';
+      newLine.innerHTML = '<span class="prompt">dynatrix@system:~$</span> <span class="command">hack_the_planet</span>';
+      terminalBody.appendChild(newLine);
+      
+      setTimeout(() => {
+        const output = document.createElement('div');
+        output.className = 'terminal-line';
+        output.innerHTML = '<span class="output">Access granted. Welcome to the matrix.</span>';
+        terminalBody.appendChild(output);
+        isTyping = false;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
